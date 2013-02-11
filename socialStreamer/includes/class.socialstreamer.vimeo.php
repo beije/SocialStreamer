@@ -43,7 +43,8 @@ class SocialVimeo extends SocialStreamer {
 					'url' => (string) $post->link,
 					'date' => (integer) strtotime( $post->pubDate ),
 					'content' => (string) $post->description,
-					'source' => (string) $this->label
+					'source' => (string) $this->label,
+					'id' => (string) $this->username,
 				);
 			}
 		}

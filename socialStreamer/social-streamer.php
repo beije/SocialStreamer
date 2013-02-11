@@ -84,6 +84,7 @@ function socialStreamIterator() {
 				add_post_meta($id, 'source', $socialpost['source'], true );
 				add_post_meta($id, 'url', $socialpost['url'], true );
 				add_post_meta($id, 'md5', $socialpost['md5'], true );
+				add_post_meta($id, 'identifier', $socialpost['id'], true );
 			}
 		
 		}
@@ -270,7 +271,7 @@ function socialStreamerDeactivate() {
 
 // Add our cron entry
 if ( ! wp_next_scheduled('socialStreamerCron') ) {
-    wp_schedule_event( time(), 'every_minute', 'socialStreamerCron' ); // hourly, daily and twicedaily
+    wp_schedule_event( time(), 'every_five_minutes', 'socialStreamerCron' ); // hourly, daily and twicedaily
 }
 
 // Set actions

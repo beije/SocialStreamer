@@ -40,7 +40,8 @@ class SocialTwitter extends SocialStreamer {
 					'url' => (string) $post->link,
 					'date' => (integer) strtotime( $post->pubDate ),
 					'content' => (string) $content,
-					'source' => (string) $this->label
+					'source' => (string) $this->label,
+					'id' => (string) $this->username,
 				);
 			}
 		}
