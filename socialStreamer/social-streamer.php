@@ -27,23 +27,30 @@ function add_schedule( $param ) {
 function socialStreamIterator() {
 
 	// Load our classes
-	include( 'class.socialstreamer.php' );
-	include( 'class.socialstreamer.twitter.php' );
-	include( 'class.socialstreamer.flickr.php' );
-	include( 'class.socialstreamer.vimeo.php' );
-	include( 'class.socialstreamer.youtube.php' );
+	include( 'includes/class.socialstreamer.php' );
+	include( 'includes/class.socialstreamer.twitter.php' );
+	include( 'includes/class.socialstreamer.flickr.php' );
+	include( 'includes/class.socialstreamer.vimeo.php' );
+	include( 'includes/class.socialstreamer.youtube.php' );
 	
-	// Initialize our objects and fetch the data
-	$yt = new socialYoutube('thq1beije');
-	$v = new socialVimeo('beije');
-	$tw = new socialTwitter('thq1beije');
-	$f = new socialFlickr('70752991@N03');
-
-	// Build an array with all the data
-	$socialPosts = $yt->getPosts();
-	$socialPosts = array_merge( $socialPosts, $v->getPosts() );
-	$socialPosts = array_merge( $socialPosts, $tw->getPosts() );
-	$socialPosts = array_merge( $socialPosts, $f->getPosts() );
+	$supported = array( 
+		'twitter' => array(), 
+		'youtube' => array(), 
+		'flickr'  => array(), 
+		'vimeo'   => array(),
+	);
+	$socialPosts = array();
+	foreach( $supported as $type => $users ) {
+		$optionName = 'socialstreamer_' . $type;
+		$users = get_option( $optionName );
+		
+		if( !$users ) continue;
+		
+		$users = unserialize( $users );
+		foreach( $users as $user ) {
+			$socialPosts = array_merge($socialPosts, socialStreamFetchData( $user, $type ) );	
+		}
+	}
 
 	// Loop through the posts
 	foreach( $socialPosts as $socialpost ) {
@@ -87,6 +94,40 @@ function socialStreamIterator() {
 	}
 }
 
+
+/*
+ * Fetches a user based on id and type
+ *
+ * @param (string) $id Userid or what have you
+ * @param (string) $type Social network
+ *
+ * @return array();
+ */
+function socialStreamFetchData( $id, $type ) {
+
+	switch( $type ) {
+		case 'youtube':
+			$d = new socialYoutube( $id );
+		break;
+		case 'twitter':
+			$d = new socialTwitter( $id );
+		break;
+		case 'vimeo':
+			$d = new socialVimeo( $id );
+		break;
+		case 'flickr':
+			$d = new socialFlickr( $id );
+		break;
+		default:
+			return false;
+		break;
+	}
+
+	return $d->getPosts();
+}
+
+
+
 /*
  *    Creates our custom post type
  *
@@ -107,6 +148,119 @@ function create_post_type() {
 }
 
 /*
+ *
+ *	ADMIN
+ *
+ */
+
+// Add admin page to menu
+add_action('admin_menu', 'socialStreamerAddAdminPage');
+function socialStreamerAddAdminPage() {
+	add_options_page( 'Social Streamer Options', 'Social Streamer', 'administrator', 'socialstreamer', 'socialStreamerAdmin');	
+}
+
+/*
+ *	Function for rendering out the admin page
+ */
+function socialStreamerAdmin() {
+	$supported = array( 'twitter', 'youtube', 'flickr', 'vimeo' );
+
+	// Post data, save
+	if( isset( $_REQUEST['do'] ) ) {
+
+		// Loop through each network aka type
+		foreach( $supported as $type ) {
+			// build our option name
+			$optionName = 'socialstreamer_' . $type;
+
+			// Check that the request is set and that it's an array
+			if( isset( $_REQUEST[$type] ) && is_array( $_REQUEST[$type] ) ) {
+				
+				// Clean data, removing items that are empty
+				$data = array();
+				foreach( $_REQUEST[$type] as $d ) {
+					$d = trim( $d );
+					if( !empty( $d ) ) {
+						$data[] = $d;
+					}
+				}
+
+				// Update database
+				update_option( $optionName, serialize( $data ) );
+			}
+		}
+	}
+
+	//
+	// Fetch data
+	//
+
+	$socialNetwork = array();
+	// Loop through networks
+	foreach( $supported as $type ) {
+		// Build option name
+		$optionName = 'socialstreamer_' . $type;
+
+		// Check if option exists, if not, create it
+		// (This should only run once, the first time you visit
+		// this page)
+		if( !get_option( $optionName ) ) {
+			update_option( $optionName, serialize( array() ) );
+		}
+
+		// Get the option
+		$option = get_option( $optionName );
+
+		// Wordpress seams to cache get_option
+		// and sometimes unserializes the data for you,
+		// so this check is added so it doesn't throw errors
+		if( !is_array( $option ) ) {
+			// data is serialized
+			$socialNetwork[$type] = unserialize( $option );
+		} else {
+			// Data is not serialized
+			$socialNetwork[$type] = $option;
+		}
+	}
+
+	//
+	// Write out our form
+	//
+
+	?>
+<div class="wrap">
+	<h2><?php _e( 'Social streamer', 'att_trans_domain' ); ?></h2>
+	<form name="att_img_options" method="post" action="<?php echo str_replace( '%7E', '~', $_SERVER['REQUEST_URI']); ?>">
+
+	<?php // loop through the networks ?>
+	<?php foreach( $socialNetwork as $k => $users ): ?>
+		<h3 style="text-transform:capitalize;"><?php echo $k; ?></h3>
+
+		<?php // loop through the users under a network ?>
+		<?php foreach( $users as $t => $user ): ?>
+			<input type="text" name="<?php echo $k; ?>[]" value="<?php echo htmlentities( $user ); ?>" /><br />
+		<?php endforeach; ?>
+
+		<?php // Add an empty input field for new users ?>
+		<input type="text" name="<?php echo $k; ?>[]" value="" placeholder="New!" /><br />
+	<?php endforeach; ?>
+		<br /><br />
+		<input type="submit" name="do" value="<?php _e( 'Save', 'att_trans_domain' ); ?>" />
+	</form>
+</div>
+<?php
+
+}
+
+
+/*
+ *
+ *	HOOKS
+ *
+ */
+
+
+/*
  *    Fires when the plugin is deactivated
  *    removes our cron entry
  */
@@ -123,5 +277,8 @@ if ( ! wp_next_scheduled('socialStreamerCron') ) {
 register_deactivation_hook(__FILE__, 'socialStreamerDeactivate');
 add_action( 'init', 'create_post_type' );
 add_action( 'socialStreamerCron', 'socialStreamIterator' );
- 
+
+// Debug, add when you want to load content
+// every page view.
+//add_action( 'init', 'socialStreamIterator' );
 ?>
