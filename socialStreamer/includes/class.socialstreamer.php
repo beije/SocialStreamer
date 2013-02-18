@@ -19,7 +19,7 @@
  *	The parent class shouldn't be used.
  *
  */
-class SocialStreamer {
+abstract class SocialStreamer {
 
 	protected $url = false;
 	protected $data = array();
@@ -27,7 +27,7 @@ class SocialStreamer {
 	protected $label = 'Not declared';
 	public $parsedPosts = array();
 
-	function __construct( $url ) {
+	public function __construct( $url ) {
 		$this->url = $url;
 		$this->fetchData();
 	}
@@ -77,10 +77,7 @@ class SocialStreamer {
 	 *
 	 *	Returns an empty array
 	 *
-	 *	@return (array), An empty array
 	 */		
-	protected function domToPost( $dom ) {
-		return array();
-	}
+	abstract protected function domToPost( $dom );
 }
 ?>
