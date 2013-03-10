@@ -32,12 +32,14 @@ function socialStreamIterator() {
 	include( 'includes/class.socialstreamer.flickr.php' );
 	include( 'includes/class.socialstreamer.vimeo.php' );
 	include( 'includes/class.socialstreamer.youtube.php' );
-	
+	include( 'includes/class.socialstreamer.github.php' );
+
 	$supported = array( 
 		'twitter' => array(), 
 		'youtube' => array(), 
 		'flickr'  => array(), 
 		'vimeo'   => array(),
+		'github'   => array(),
 	);
 	$socialPosts = array();
 	foreach( $supported as $type => $users ) {
@@ -119,6 +121,9 @@ function socialStreamFetchData( $id, $type ) {
 		case 'flickr':
 			$d = new socialFlickr( $id );
 		break;
+		case 'github':
+			$d = new socialGithub( $id );
+		break;
 		default:
 			return false;
 		break;
@@ -164,7 +169,7 @@ function socialStreamerAddAdminPage() {
  *	Function for rendering out the admin page
  */
 function socialStreamerAdmin() {
-	$supported = array( 'twitter', 'youtube', 'flickr', 'vimeo' );
+	$supported = array( 'twitter', 'youtube', 'flickr', 'vimeo', 'github' );
 
 	// Post data, save
 	if( isset( $_REQUEST['do'] ) ) {
