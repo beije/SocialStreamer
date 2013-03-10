@@ -39,7 +39,7 @@ class SocialGithub extends SocialStreamer {
 				$linkdata = $post->link->attributes();
 				$posts[] = array(
 					'title' => (string) $post->title,
-					'md5' => (string) md5( $post->description ),
+					'md5' => (string) md5( $post->content ),
 					'url' => (string) $linkdata->href,
 					'date' => (integer) strtotime( $post->published ),
 					'content' => (string) $post->content,
