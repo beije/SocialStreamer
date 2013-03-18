@@ -5,6 +5,7 @@ include( 'includes/class.socialstreamer.flickr.php' );
 include( 'includes/class.socialstreamer.vimeo.php' );
 include( 'includes/class.socialstreamer.youtube.php' );
 include( 'includes/class.socialstreamer.github.php' );
+include( 'includes/class.socialstreamer.stackoverflow.php' );
 
 class SocialStreamerPlugin {
 
@@ -14,6 +15,7 @@ class SocialStreamerPlugin {
 		'flickr'  => array(), 
 		'vimeo'   => array(),
 		'github'   => array(),
+		'stackoverflow'   => array(),
 	);
 
 	public function __construct() {
@@ -70,7 +72,7 @@ class SocialStreamerPlugin {
 					// Insert metadata about the post
 					add_post_meta($id, 'source', $socialpost['source'], true );
 					add_post_meta($id, 'url', $socialpost['url'], true );
-					add_post_meta($id, 'md5', $socialpost['md5'], true );
+					add_post_meta($id, '_md5', $socialpost['md5'], true );
 					add_post_meta($id, 'identifier', $socialpost['id'], true );
 				}
 			
@@ -129,6 +131,9 @@ class SocialStreamerPlugin {
 			break;
 			case 'github':
 				$d = new socialGithub( $id );
+			break;
+			case 'stackoverflow':
+				$d = new socialStackoverflow( $id );
 			break;
 			default:
 				return false;
