@@ -43,7 +43,7 @@ class SocialStreamerPlugin {
 			
 			$users = unserialize( $users );
 			foreach( $users as $user ) {
-				$socialPosts = array_merge($socialPosts, $this->socialStreamFetchData( $user, $type ) );	
+				$socialPosts = array_merge($socialPosts, $this->fetchData( $user, $type ) );	
 			}
 		}
 
@@ -112,7 +112,7 @@ class SocialStreamerPlugin {
 	 *
 	 * @return array();
 	 */
-	private function socialStreamFetchData( $id, $type ) {
+	private function fetchData( $id, $type ) {
 
 		switch( $type ) {
 			case 'youtube':
@@ -161,7 +161,7 @@ class SocialStreamerPlugin {
 				'display'  => __( 'Every 5 minutes' ) 
 			) );
 		}
-		
+
 		// Add our cron entry
 		if ( ! wp_next_scheduled('socialStreamerCron') ) {
 			wp_schedule_event( time(), 'every_five_minutes', 'socialStreamerCron' ); // hourly, daily and twicedaily
