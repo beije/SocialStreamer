@@ -94,7 +94,7 @@ class SocialStreamerPlugin {
 		// Check if current post has already been inserted
 		// (The classes have created an MD5 hash on the content 
 		// which has been saved as a meta value)
-		$matches = new WP_Query( "post_type=socialstreamer_post&meta_key=md5&meta_value=". $md5 );
+		$matches = new WP_Query( "post_type=socialstreamer_post&meta_key=_md5&meta_value=". $md5 );
 		
 		if( $matches->found_posts == 0 ) {
 			$exists = false;
