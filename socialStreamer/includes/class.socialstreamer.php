@@ -10,9 +10,9 @@
  * @author 		: Benjamin Horn
  * @project		: Wordpress
  * @file		: class.socialstreamer.php
- * @version		: 1.0.0
+ * @version		: 1.0.1
  * @created		: 2013-02-10
- * @updated		: 2013-02-13
+ * @updated		: 2013-05-07
  *
  * @usage		:
  *
@@ -38,7 +38,7 @@ abstract class SocialStreamer {
 	 *	Fetches $this->url and parses the data with simplexml_load_string.
 	 *
 	 */
-	private function fetchData() {
+	protected function fetchData() {
 		if( !$this->url ) return false;
 
 		if( $d = file_get_contents( $this->url ) ) {
@@ -56,7 +56,7 @@ abstract class SocialStreamer {
 	 *
 	 */
 	public function getPosts() {
-		return $this->domToPost( $this->data );
+		return $this->parsePosts( $this->data );
 	}
 
 
@@ -73,11 +73,11 @@ abstract class SocialStreamer {
 	}
 
 	/*
-	 *	Function domToPost()
+	 *	Function parsePosts()
 	 *
 	 *	Returns an empty array
 	 *
 	 */		
-	abstract protected function domToPost( $dom );
+	abstract protected function parsePosts( $data );
 }
 ?>

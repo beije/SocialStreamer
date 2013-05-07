@@ -9,9 +9,9 @@
  * @author 		: Benjamin Horn
  * @project		: Wordpress
  * @file		: class.socialstreamer.vimeo.php
- * @version		: 1.0.0
+ * @version		: 1.0.1
  * @created		: 2013-02-10
- * @updated		: 2013-02-13
+ * @updated		: 2013-05-07
  *
  * @usage		:
  *
@@ -31,7 +31,7 @@ class SocialVimeo extends SocialStreamer {
 		parent::__construct( $this->urlPrefix . $username . $this->urlSuffix );
 	}
 
-	function domToPost( $dom ) {
+	function parsePosts( $dom ) {
 		$posts = array();
 
 		foreach( $dom->channel->item as $k => $post ) {

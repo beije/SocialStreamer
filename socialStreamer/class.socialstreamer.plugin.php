@@ -107,6 +107,35 @@ class SocialStreamerPlugin {
 	}
 
 	/*
+	 * Fetches oauth tokens for given network.
+	 * (Currently only twitter uses this)
+	 *
+	 * @param (string) $network The name of the network (twitter)
+	 *
+	 * @return array;
+	 */
+	private function getOauthKeys( $network ) {
+		// Fetch keys
+		$keys = get_option( 'socialstreamer_' . $network . '_keys' );
+
+		if( $keys == false ) {
+			return array();
+		}
+
+		// Unpack
+		if( !is_array( $keys ) ) {
+			// data is serialized
+			$keys = unserialize( $keys );
+		} else {
+			// Data is not serialized
+			$keys = $keys;
+		}
+
+		return $keys;
+
+	}
+
+	/*
 	 * Fetches a user based on id and type
 	 *
 	 * @param (string) $id Userid or what have you
@@ -121,7 +150,14 @@ class SocialStreamerPlugin {
 				$d = new socialYoutube( $id );
 			break;
 			case 'twitter':
-				$d = new socialTwitter( $id );
+				
+				$keys = $this->getOauthKeys( 'twitter' );
+				if( $keys ) {
+					$d = new socialTwitter( $id, $keys );
+				} else {
+					return array();
+				}
+
 			break;
 			case 'vimeo':
 				$d = new socialVimeo( $id );
@@ -244,6 +280,18 @@ class SocialStreamerPlugin {
 						update_option( $optionName, serialize( $data ) );
 					}
 				}
+
+				//
+				// Twitter oauth tokens
+				//
+				$twitter_tokens = array(
+					'token' => ( isset( $_REQUEST['twitter_token'] ) ? $_REQUEST['twitter_token'] : '' ),
+					'token_secret' => ( isset( $_REQUEST['twitter_token_secret'] ) ? $_REQUEST['twitter_token_secret'] : '' ),
+					'consumer_key' => ( isset( $_REQUEST['twitter_consumer_key'] ) ? $_REQUEST['twitter_consumer_key'] : '' ),
+					'consumer_secret' => ( isset( $_REQUEST['twitter_consumer_secret'] ) ? $_REQUEST['twitter_consumer_secret'] : '' ),
+				);
+
+				update_option( 'socialstreamer_twitter_keys', serialize( $twitter_tokens ) );
 			}
 
 			//
@@ -266,7 +314,7 @@ class SocialStreamerPlugin {
 				// Get the option
 				$option = get_option( $optionName );
 
-				// Wordpress seams to cache get_option
+				// Wordpress seems to cache get_option
 				// and sometimes unserializes the data for you,
 				// so this check is added so it doesn't throw errors
 				if( !is_array( $option ) ) {
@@ -277,6 +325,19 @@ class SocialStreamerPlugin {
 					$socialNetwork[$type] = $option;
 				}
 			}
+
+			//
+			// Fetch twitter oauth keys
+			//
+
+			// Check if socialstreamer_twitter_keys exists,
+			// create if not.
+			if( !get_option( 'socialstreamer_twitter_keys' ) ) {
+				update_option( 'socialstreamer_twitter_keys', serialize( array() ) );
+			}
+
+			// Fetch keys
+			$twitter_keys = $this->getOauthKeys( 'twitter' );
 
 			//
 			// Write out our form
@@ -299,6 +360,32 @@ class SocialStreamerPlugin {
 				<?php // Add an empty input field for new users ?>
 				<input type="text" name="<?php echo $k; ?>[]" value="" placeholder="New!" /><br />
 			<?php endforeach; ?>
+				<br /><br />
+				<h3 style="text-transform:capitalize;">Extra options</h3>
+				<strong>Twitter oauth keys</strong>
+				<p>
+					In order to fetch twitter updates you need to create a twitter application under <a href="https://dev.twitter.com/apps" target="_blank">dev.twitter.com/apps</a>.
+					Once you've created your keys, insert them here.
+				</p>
+				<dl>
+					<dt>Token</dt>
+					<dd>
+						<input type="text" name="twitter_token" value="<?php echo htmlentities( $twitter_keys['token'] ); ?>" />
+					</dd>
+					<dt>Token secret</dt>
+					<dd>
+						<input type="text" name="twitter_token_secret" value="<?php echo htmlentities( $twitter_keys['token_secret'] ); ?>" />
+					</dd>
+					<dt>Consumer key</dt>
+					<dd>
+						<input type="text" name="twitter_consumer_key" value="<?php echo htmlentities( $twitter_keys['consumer_key'] ); ?>" />
+					</dd>
+					<dt>Consumer secret</dt>
+					<dd>
+						<input type="text" name="twitter_consumer_secret" value="<?php echo htmlentities( $twitter_keys['consumer_secret'] ); ?>" />
+					</dd>
+				</dl>
+
 				<br /><br />
 				<input type="submit" name="do" value="<?php _e( 'Save', 'att_trans_domain' ); ?>" />
 			</form>

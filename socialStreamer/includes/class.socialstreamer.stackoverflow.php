@@ -9,9 +9,9 @@
  * @author 		: Benjamin Horn
  * @project		: Wordpress
  * @file		: class.socialstreamer.stackoverflow.php
- * @version		: 1.0.0
+ * @version		: 1.0.1
  * @created		: 2013-03-18
- * @updated		: 2013-03-18
+ * @updated		: 2013-05-07
  *
  * @usage		:
  *
@@ -30,7 +30,7 @@ class SocialStackoverflow extends SocialStreamer {
 		parent::__construct( $this->urlPrefix . $username );
 	}
 
-	function domToPost( $dom ) {
+	function parsePosts( $dom ) {
 		
 		$posts = array();
 		foreach( $dom->entry as $k => $post ) {
