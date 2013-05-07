@@ -12,5 +12,5 @@ include( 'class.socialstreamer.plugin.php' );
 $socialStreamerPlugin = new socialStreamerPlugin();
 
 // Uncomment to parse every page load (useful for debugging)
-//$socialStreamerPlugin->parseHook();
+// $socialStreamerPlugin->parseHook();
 ?>

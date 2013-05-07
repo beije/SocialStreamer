@@ -63,14 +63,14 @@ class SocialTwitter extends SocialStreamer {
 		
 		// Some error handling
 		if( !is_array( $data ) ) {
-			error_log( 'Social Streamer Wordpress Plugin: Error with twitter oauth, attached notice )' . json_encode( $data ) );
+			error_log( 'Social Streamer Wordpress Plugin: Error with twitter oauth, attached notice (' . json_encode( $data ) . ')' );
 			return array();
 		}
 		if( count($data) == 0 ) {
 			return array();
 		}
 		if( !isset( $data[0]->text ) ) {
-			error_log( 'Social Streamer Wordpress Plugin: Error with twitter oauth, attached notice )' .json_encode( $data ) );
+			error_log( 'Social Streamer Wordpress Plugin: Error with twitter oauth, attached notice (' . json_encode( $data )  . ')' );
 			return array();
 		}
 
