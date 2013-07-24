@@ -222,7 +222,7 @@ class SocialStreamerPlugin {
 					'name' => __( 'Social posts' ),
 					'singular_name' => __( 'Social post' )
 				),
-				'public' => true,
+				'public' => false,
 				'has_archive' => false,
 				'rewrite' => array('slug' => 'socialposts'),
 				'supports' => array( 'custom-fields', 'editor', 'author' ),
